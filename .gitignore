@@ -1,0 +1,39 @@
+# API Keys and Environment Variables
+# Crucial for protecting OpenAI keys and local LLM endpoints
+.env
+.env.local
+.env.*
+
+# Structured Metadata Output
+# Based on your CLI: --output results/metadata.json
+results/
+*.json
+!batch.json
+
+# Web Scraping and Temporary Data
+# Cache from BeautifulSoup and raw engineering text
+data/raw/
+data/processed/
+*.html
+*.txt
+
+# Machine Learning Artifacts
+# Trained Random Forest & SVM models and TF-IDF features
+models/*.joblib
+models/*.pkl
+*.tfidf
+
+# Python and Dependency Management
+# Based on your requirements.txt[cite: 14]
+__pycache__/
+*.py[cod]
+*$py.class
+.venv/
+venv/
+env/
+
+# IDE and OS
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
