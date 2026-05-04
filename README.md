@@ -4,32 +4,34 @@
 
 ---
 
-## Project overview
+## 🔍 Project Overview
 
 A two-stage intelligence system:
 
-1. **ML stage** (fast, local): Random Forest + SVM classifiers on TF-IDF features classify component type with confidence scores
-2. **LLM agent stage** (deep understanding): LLM validates, corrects, and enriches metadata — filling gaps the ML model misses
+1. **ML Stage** (fast, local): Random Forest + SVM classifiers trained on TF-IDF features to classify component type with confidence scores
+2. **LLM Agent Stage** (deep understanding): LLM validates, corrects, and enriches metadata — filling gaps the ML model misses
 
-**Output**: Structured JSON with component type, voltage, capacity, weight, certifications, manufacturer, part number, and a full audit trail of corrections.
+**Output**: Structured JSON with component type, voltage, capacity, weight, certifications, manufacturer, part number, and more — with a full audit trail of corrections.
 
 ---
 
-## Architecture
+## 🏗️ Architecture
 
 ```
 llm-agents-metadata-extraction/
 ├── src/
-│   ├── llm_agent.py       # LLM agent + web scraper + rule-based regex extractor
-│   ├── ml_classifier.py   # RF + SVM ensemble classifier (TF-IDF features)
+│   ├── llm_agent.py       # LLM agent + web scraper + rule-based extractor
+│   ├── ml_classifier.py   # RF + SVM ensemble classifier
 │   └── pipeline.py        # End-to-end orchestration
+├── data/
+├── configs/
 ├── requirements.txt
 └── README.md
 ```
 
 ---
 
-## Setup
+## ⚙️ Setup
 
 ```bash
 git clone https://github.com/PRATdoppelEK/llm-agents-metadata-extraction.git
@@ -37,37 +39,57 @@ cd llm-agents-metadata-extraction
 pip install -r requirements.txt
 ```
 
-For local LLM (recommended for data privacy):
+**For local LLM** (recommended for privacy):
 ```bash
 # Install Ollama: https://ollama.ai
 ollama pull mistral
 ```
 
----
-
-## Quickstart
-
-### Demo mode — no LLM needed, runs immediately
+**For OpenAI API**:
 ```bash
-cd src
-python pipeline.py
-```
-
-### With your own text
-```bash
-cd src
-python pipeline.py --texts "Samsung 50Ah NMC cell 3.65V UN38.3 certified -30°C to 60°C"
-```
-
-### With URLs (scrapes page automatically)
-```bash
-cd src
-python pipeline.py --urls https://example.com/battery-spec --output results/metadata.json
+export OPENAI_API_KEY=sk-...
 ```
 
 ---
 
-## Sample output
+## 🚀 Quickstart
+
+### Demo mode (no LLM required — runs ML only)
+```bash
+python src/pipeline.py
+```
+
+### With URLs
+```bash
+python src/pipeline.py \
+  --urls https://www.batteryspace.com/prod-specs/... \
+  --llm_url http://localhost:11434/v1/chat/completions \
+  --output results/metadata.json
+```
+
+### With raw text input
+```bash
+python src/pipeline.py \
+  --texts "Samsung 50Ah NMC cell 3.65V UN38.3 certified" \
+  --api_key $OPENAI_API_KEY \
+  --llm_url https://api.openai.com/v1/chat/completions \
+  --llm_model gpt-4o-mini
+```
+
+### Batch JSON input
+```json
+[
+  {"id": "comp_001", "url": "https://example.com/battery-spec"},
+  {"id": "comp_002", "text": "LFP cell 3.2V 100Ah automotive grade..."}
+]
+```
+```bash
+python src/pipeline.py --input_json batch.json --output results/batch_metadata.json
+```
+
+---
+
+## 📊 Sample Output
 
 ```json
 {
@@ -76,8 +98,12 @@ python pipeline.py --urls https://example.com/battery-spec --output results/meta
   "material": "NMC",
   "voltage_v": 3.65,
   "capacity_ah": 50.0,
+  "weight_kg": 0.9,
   "temperature_range": "-30°C to 60°C",
   "certifications": ["UN 38.3"],
+  "manufacturer": "Samsung SDI",
+  "part_number": "INR21700-50E",
+  "ml_label": "battery_cell",
   "ml_confidence": 0.94,
   "llm_validated": true,
   "llm_corrections": {}
@@ -86,23 +112,23 @@ python pipeline.py --urls https://example.com/battery-spec --output results/meta
 
 ---
 
-## Key technical highlights
+## 🧠 Key Technical Highlights
 
-- **Ensemble ML**: RF + SVM with TF-IDF (1–3 gram) for robust text classification across 9 component classes
-- **LLM validation**: Structured JSON extraction with full audit trail of corrections
-- **Privacy-first**: Works fully offline with local LLMs via Ollama (Mistral, LLaMA 3)
-- **Rule-based pre-pass**: Regex extraction for voltage, capacity, certifications before LLM call
-- **Web scraping**: BeautifulSoup-based scraper for product and specification pages
-
----
-
-## Tech stack
-
-`scikit-learn` · `BeautifulSoup4` · `Ollama` · `OpenAI-compatible API` · `Python 3.10+`
+- **Ensemble ML**: RF + SVM with TF-IDF (1–3 gram) for robust text classification
+- **LLM Validation**: Structured JSON extraction with audit trail of corrections
+- **Privacy-first**: Works fully offline with local LLMs (Ollama/Mistral/Llama)
+- **Rule-based pre-pass**: Regex extraction for voltage, capacity, certifications before LLM
+- **Web scraping**: BeautifulSoup-based scraper for product pages
 
 ---
 
-## Author
+## 🔧 Tech Stack
 
-**Prateek Gaur** — ML Engineer | Battery & Engineering AI
-[LinkedIn](https://www.linkedin.com/in/prateek-gaur-15a629b4) · [GitHub](https://github.com/PRATdoppelEK) · prateekgaur@gmx.de
+`scikit-learn` · `LangChain-compatible API` · `BeautifulSoup4` · `Ollama` · `OpenAI API` · `Python 3.10+`
+
+---
+
+## 👤 Author
+
+**Prateek Gaur** — ML Engineer | Battery & Engineering AI  
+[LinkedIn](https://www.linkedin.com/in/prateek-gaur-15a629b4) · [GitHub](https://github.com/PRATdoppelEK)
