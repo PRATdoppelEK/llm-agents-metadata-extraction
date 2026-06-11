@@ -112,6 +112,26 @@ python src/pipeline.py --input_json batch.json --output results/batch_metadata.j
 *ML classifier achieves ~94% confidence on battery component classification. 
 LLM agent corrects and enriches ~30% of ML outputs with additional structured fields.*
 ---
+## 📈 Results
+
+### Pipeline demo — 3 components extracted
+
+See full output: [`results/metadata.json`](results/metadata.json)
+
+**Extraction summary:**
+
+| Component | Type | Voltage | Capacity | LLM Corrections | LLM Validated |
+|-----------|------|---------|----------|-----------------|---------------|
+| demo_cell | lithium-ion cell (NMC) | 3.65V | 50Ah | 5 (type, material, weight, manufacturer, part no.) | ✅ |
+| demo_pack | battery_pack | 400V | 80kWh | 3 (capacity, temp range, part no.) | ✅ |
+| demo_motor | BLDC hub motor | 48V | — | 2 (type, IP65 certification) | ✅ |
+
+**Key observations:**
+- ML classifier flags low confidence (15–20%) → automatically triggers LLM validation
+- LLM corrects critical errors e.g. `weight_kg: 900.0 → 0.9`, `capacity_ah: 80 → 80000`
+- Full correction audit trail available in `results/metadata.json`
+
+---
 
 ## 🧠 Key Technical Highlights
 
