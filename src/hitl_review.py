@@ -485,8 +485,8 @@ class HITLHandler(BaseHTTPRequestHandler):
 
     def do_GET(self):
         if state["done"]:
-            approved = sum(1 for a in state["audit"] if a["status"] == "approved")
-            rejected = sum(1 for a in state["audit"] if a["status"] == "rejected")
+            approved = sum(1 for a in state["audit"] if a["status"] == "approve")
+            rejected = sum(1 for a in state["audit"] if a["status"] == "reject")
             html = render_done_page(approved, rejected, state["audit"])
         elif state["current"] < len(state["items"]):
             item  = state["items"][state["current"]]
