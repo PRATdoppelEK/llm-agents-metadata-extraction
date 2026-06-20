@@ -6,28 +6,32 @@
 
 ## 🔍 Project Overview
 
-A two-stage intelligence system:
+A three-stage intelligence system:
 
 1. **ML Stage** (fast, local): Random Forest + SVM classifiers trained on TF-IDF features to classify component type with confidence scores
 2. **LLM Agent Stage** (deep understanding): LLM validates, corrects, and enriches metadata — filling gaps the ML model misses
+3. **HITL Stage** (human validation): Browser-based review interface where a human approves, corrects, or rejects each record before it is trusted
 
-**Output**: Structured JSON with component type, voltage, capacity, weight, certifications, manufacturer, part number, and more — with a full audit trail of corrections.
+**Output**: Structured JSON with component type, voltage, capacity, weight, certifications, manufacturer, part number, and more — with a full audit trail of corrections at every stage.
 
 ---
 
 ## 🏗️ Architecture
-
-```
 llm-agents-metadata-extraction/
+
 ├── src/
 │   ├── llm_agent.py       # LLM agent + web scraper + rule-based extractor
 │   ├── ml_classifier.py   # RF + SVM ensemble classifier
-│   └── pipeline.py        # End-to-end orchestration
+│   ├── pipeline.py        # End-to-end orchestration
+│   └── hitl_review.py     # Human-in-the-Loop review interface
+├── results/
+│   ├── metadata.json          # Raw LLM output
+│   ├── approved_metadata.json # Human-approved records
+│   └── audit_trail.json       # Full correction history
 ├── data/
 ├── configs/
 ├── requirements.txt
 └── README.md
-```
 
 ---
 
@@ -76,16 +80,12 @@ python src/pipeline.py \
   --llm_model gpt-4o-mini
 ```
 
-### Batch JSON input
-```json
-[
-  {"id": "comp_001", "url": "https://example.com/battery-spec"},
-  {"id": "comp_002", "text": "LFP cell 3.2V 100Ah automotive grade..."}
-]
-```
+### Run HITL review after pipeline
 ```bash
-python src/pipeline.py --input_json batch.json --output results/batch_metadata.json
+python src/hitl_review.py --input results/metadata.json
 ```
+
+Browser opens automatically at `http://localhost:5050`. Review each record, then approved records are saved to `results/approved_metadata.json`.
 
 ---
 
@@ -106,12 +106,15 @@ python src/pipeline.py --input_json batch.json --output results/batch_metadata.j
   "ml_label": "battery_cell",
   "ml_confidence": 0.94,
   "llm_validated": true,
-  "llm_corrections": {}
+  "llm_corrections": {},
+  "hitl_status": "approve",
+  "human_corrections": {},
+  "hitl_notes": ""
 }
 ```
-*ML classifier achieves ~94% confidence on battery component classification. 
-LLM agent corrects and enriches ~30% of ML outputs with additional structured fields.*
+
 ---
+
 ## 📈 Results
 
 ### Pipeline demo — 3 components extracted
@@ -133,10 +136,40 @@ See full output: [`results/metadata.json`](results/metadata.json)
 
 ---
 
+## 🧑‍💻 Human-in-the-Loop (HITL) Review
+
+### HITL pipeline — terminal + browser interface
+
+![HITL terminal launch](assets/screenshots/hitl_terminal.png)
+
+### Review form — per-item validation with LLM correction diff
+
+![HITL review form](assets/screenshots/hitl_review_form.png)
+
+### Completion summary — audit trail
+
+![HITL completion](assets/screenshots/hitl_complete.png)
+
+**HITL session results:**
+
+| Item | Status | Human Corrections | Reviewed At |
+|------|--------|-------------------|-------------|
+| demo_cell | ✅ APPROVE | 0 fields corrected | 2026-06-20T18:04:02 |
+| demo_pack | ❌ REJECT | 2 fields corrected | 2026-06-20T18:04:05 |
+| demo_motor | ✅ APPROVE | 3 fields corrected | 2026-06-20T18:04:08 |
+
+**Output files:**
+- `results/approved_metadata.json` — human-approved records only
+- `results/audit_trail.json` — full correction history (ML → LLM → Human)
+
+---
+
 ## 🧠 Key Technical Highlights
 
 - **Ensemble ML**: RF + SVM with TF-IDF (1–3 gram) for robust text classification
 - **LLM Validation**: Structured JSON extraction with audit trail of corrections
+- **HITL Interface**: Local browser-based review — no external dependencies
+- **Three-layer audit trail**: ML label → LLM corrections → Human corrections
 - **Privacy-first**: Works fully offline with local LLMs (Ollama/Mistral/Llama)
 - **Rule-based pre-pass**: Regex extraction for voltage, capacity, certifications before LLM
 - **Web scraping**: BeautifulSoup-based scraper for product pages
@@ -145,7 +178,7 @@ See full output: [`results/metadata.json`](results/metadata.json)
 
 ## 🔧 Tech Stack
 
-`scikit-learn` · `LangChain-compatible API` · `BeautifulSoup4` · `Ollama` · `OpenAI API` · `Python 3.10+`
+`scikit-learn` · `LangChain-compatible API` · `BeautifulSoup4` · `Ollama` · `OpenAI API` · `Python 3.10+` · `http.server`
 
 ---
 
