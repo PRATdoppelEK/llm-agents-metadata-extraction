@@ -17,13 +17,14 @@ A three-stage intelligence system:
 ---
 
 ## 🏗️ Architecture
-llm-agents-metadata-extraction/
 
+```
+llm-agents-metadata-extraction/
 ├── src/
-│   ├── llm_agent.py       # LLM agent + web scraper + rule-based extractor
-│   ├── ml_classifier.py   # RF + SVM ensemble classifier
-│   ├── pipeline.py        # End-to-end orchestration
-│   └── hitl_review.py     # Human-in-the-Loop review interface
+│   ├── llm_agent.py           # LLM agent + web scraper + rule-based extractor
+│   ├── ml_classifier.py       # RF + SVM ensemble classifier
+│   ├── pipeline.py            # End-to-end orchestration
+│   └── hitl_review.py         # Human-in-the-Loop review interface
 ├── results/
 │   ├── metadata.json          # Raw LLM output
 │   ├── approved_metadata.json # Human-approved records
@@ -32,6 +33,7 @@ llm-agents-metadata-extraction/
 ├── configs/
 ├── requirements.txt
 └── README.md
+```
 
 ---
 
