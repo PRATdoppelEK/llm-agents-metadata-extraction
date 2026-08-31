@@ -142,15 +142,15 @@ See full output: [`results/metadata.json`](results/metadata.json)
 
 ### HITL pipeline — terminal + browser interface
 
-![HITL terminal launch](assets/screenshots/hitl_terminal.png)
+![HITL terminal launch](screenshots/hitl_terminal.png)
 
 ### Review form — per-item validation with LLM correction diff
 
-![HITL review form](assets/screenshots/hitl_review_form.png)
+![HITL review form](screenshots/hitl_review_form.png)
 
 ### Completion summary — audit trail
 
-![HITL completion](assets/screenshots/hitl_complete.png)
+![HITL completion](screenshots/hitl_complete.png)
 
 **HITL session results:**
 
