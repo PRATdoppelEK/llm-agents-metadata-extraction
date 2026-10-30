@@ -4,6 +4,10 @@
 
 ---
 
+> **📌 About this repo:** This is a showcase repo — write-up, architecture, and results only. The full implementation lives in a private core repo (kept private to protect the code and as a backup) and is available for a live walkthrough on request, e.g. in an interview.
+
+---
+
 ## 🔍 Project Overview
 
 A three-stage intelligence system:
@@ -76,7 +80,7 @@ python src/pipeline.py \
 ### With raw text input
 ```bash
 python src/pipeline.py \
-  --texts "Samsung 50Ah NMC cell 3.65V UN38.3 certified" \
+  --texts "Samsung 21700 NMC cell 5Ah 3.6V UN38.3 certified" \
   --api_key $OPENAI_API_KEY \
   --llm_url https://api.openai.com/v1/chat/completions \
   --llm_model gpt-4o-mini
@@ -98,9 +102,9 @@ Browser opens automatically at `http://localhost:5050`. Review each record, then
   "item_id": "demo_cell",
   "component_type": "battery_cell",
   "material": "NMC",
-  "voltage_v": 3.65,
-  "capacity_ah": 50.0,
-  "weight_kg": 0.9,
+  "voltage_v": 3.6,
+  "capacity_ah": 5.0,
+  "weight_kg": 0.07,
   "temperature_range": "-30°C to 60°C",
   "certifications": ["UN 38.3"],
   "manufacturer": "Samsung SDI",
@@ -127,13 +131,15 @@ See full output: [`results/metadata.json`](results/metadata.json)
 
 | Component | Type | Voltage | Capacity | LLM Corrections | LLM Validated |
 |-----------|------|---------|----------|-----------------|---------------|
-| demo_cell | lithium-ion cell (NMC) | 3.65V | 50Ah | 5 (type, material, weight, manufacturer, part no.) | ✅ |
+| demo_cell | lithium-ion cell (NMC) | 3.6V | 5Ah | 5 (type, material, weight, manufacturer, part no.) | ✅ |
 | demo_pack | battery_pack | 400V | 80kWh | 3 (capacity, temp range, part no.) | ✅ |
 | demo_motor | BLDC hub motor | 48V | — | 2 (type, IP65 certification) | ✅ |
 
 **Key observations:**
 - ML classifier flags low confidence (15–20%) → automatically triggers LLM validation
-- LLM corrects critical errors e.g. `weight_kg: 900.0 → 0.9`, `capacity_ah: 80 → 80000`
+- LLM fixes unit errors, e.g. a weight given in grams parsed as kilograms
+- LLM corrections can also be wrong: on `demo_pack` it changed `capacity_ah: 80 → 80000`, confusing kWh/Wh with Ah
+  (a 400 V / 80 kWh pack is 200 Ah). The human reviewer rejected that record — this is why the HITL stage exists.
 - Full correction audit trail available in `results/metadata.json`
 
 ---
