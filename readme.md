@@ -136,7 +136,8 @@ See full output: [`results/metadata.json`](results/metadata.json)
 | demo_motor | BLDC hub motor | 48V | — | 2 (type, IP65 certification) | ✅ |
 
 **Key observations:**
-- ML classifier flags low confidence (15–20%) → automatically triggers LLM validation
+- ML classifier confidence on the demo items is 30–36% (72 seed examples, 9 classes) → LLM validation is triggered
+- Seed-set accuracy: 4-fold cross-validated macro-F1 0.82 (SVM) and 0.65 (Random Forest); add real labelled data before production use
 - LLM fixes unit errors, e.g. a weight given in grams parsed as kilograms
 - LLM corrections can also be wrong: on `demo_pack` it changed `capacity_ah: 80 → 80000`, confusing kWh/Wh with Ah
   (a 400 V / 80 kWh pack is 200 Ah). The human reviewer rejected that record — this is why the HITL stage exists.
